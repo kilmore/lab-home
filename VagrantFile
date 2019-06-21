@@ -44,6 +44,8 @@ Vagrant.configure("2") do |config|
                     config.vm.provision "shell", path: "ubuntu/basics.sh"
                     config.vm.provision "shell", path: "ubuntu/hashistackInstall.sh"
                     config.vm.provision "shell", path: "ubuntu/awsCLI.sh"
+                    # TODO: Install Ansible
+                    # TODO: Install GitClient
 
                     # If there are local SSH Keys, mount the directory 
                     if ENV['VAGRANT_SSH_KEY_LOCATION']
