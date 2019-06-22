@@ -6,6 +6,7 @@ systems = [
           :name => "workstation",
           :type => "workstation",
           :role => "workstation",
+          # TODO: Update to Ubuntu 18.04
           # :box => "ubuntu/bionic64",
           # :box_version => "20190621.0.0",
           :box  =>  "ubuntu/xenial64",
@@ -62,7 +63,6 @@ Vagrant.configure("2") do |config|
                     config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
                     config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/id_rsa.pub" 
 
-                    # If this is a workstation then we install all sorts of fun stuff
                     config.vm.provision "shell", path: "ubuntu/dockerInstall.sh"
                     config.vm.provision "shell", path: "ubuntu/basics.sh"
                     config.vm.provision "shell", path: "ubuntu/hashistackInstall.sh"
@@ -83,10 +83,8 @@ Vagrant.configure("2") do |config|
                     # chmod the files in /home/vagrant/.ssh directory so the vagrant user can use them
                     config.vm.provision "shell", inline: "echo \"# Modify the .ssh contents so only vagrant can access\" >> .bashrc"
                     config.vm.provision "shell", inline: "echo \"chmod 700 /home/vagrant/.ssh/* || true\" >> .bashrc"                         
-
                else 
                     config.vm.provision "shell", path: "centos/hello-world.sh"
-               
                end
           end
      end
