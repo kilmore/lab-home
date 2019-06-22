@@ -1,8 +1,13 @@
+
+# vagrant-ohai (0.1.13)
+
 systems = [
      {
           :name => "workstation",
           :type => "workstation",
           :role => "workstation",
+          # :box => "ubuntu/bionic64",
+          # :box_version => "20190621.0.0",
           :box  =>  "ubuntu/xenial64",
           :box_version => "20180831.0.0",
           :eth1 => "10.1.1.100",
@@ -13,11 +18,21 @@ systems = [
           :name => "ns0",
           :type => "server",
           :role => "DNS",
-          :box  =>  "ubuntu/xenial64",
-          :box_version => "20180831.0.0",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
           :eth1 => "10.1.1.10",
-          :mem => "4096",
-          :cpu => "4"
+          :mem => "2048",
+          :cpu => "2"
+     },
+     {
+          :name => "consul0",
+          :type => "server",
+          :role => "DNS",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.11",
+          :mem => "2048",
+          :cpu => "2"
      }     
 ]
 
@@ -25,11 +40,16 @@ Vagrant.configure("2") do |config|
      systems.each do |opts|
           config.vm.define opts[:name] do |config|
                
-               # Create Workstation and System Settings
+               # Create System
                config.vm.box = opts[:box]
                config.vm.box_version = opts[:box_version]
                config.vm.hostname = opts[:name]
-               config.vm.network :private_network, ip: opts[:eth1]
+               config.vm.network "private_network", ip: opts[:eth1]
+
+               config.ssh.insert_key = false
+               config.ssh.private_key_path = ['~/.vagrant.d/insecure_private_key', 'sshKeys/vagrantKey']
+               config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/authorized_keys" 
+
 
                config.vm.provider "virtualbox" do |v|
                     v.name = opts[:name]
@@ -37,27 +57,36 @@ Vagrant.configure("2") do |config|
                     v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
                end
 
-               #Configure Systems
+               # Configure System
                if opts[:type] == "workstation"
+                    config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
+                    config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/id_rsa.pub" 
+
                     # If this is a workstation then we install all sorts of fun stuff
                     config.vm.provision "shell", path: "ubuntu/dockerInstall.sh"
                     config.vm.provision "shell", path: "ubuntu/basics.sh"
                     config.vm.provision "shell", path: "ubuntu/hashistackInstall.sh"
                     config.vm.provision "shell", path: "ubuntu/awsCLI.sh"
-                    # TODO: Install Ansible
+                    config.vm.provision "shell", path: "ubuntu/install-ansible.sh"
                     # TODO: Install GitClient
 
-                    # If there are local SSH Keys, mount the directory 
+                    # If there are local SSH Keys, mount the directory to /home/vagrant/.ssh
                     if ENV['VAGRANT_SSH_KEY_LOCATION']
                          config.vm.provision "file", source: ENV['VAGRANT_SSH_KEY_LOCATION'], destination: "/home/vagrant/.ssh"
-                         config.vm.provision "shell", inline: "echo \"# Modify the .ssh contents so only vagrant can access\" >> .bashrc"
-                         config.vm.provision "shell", inline: "echo \"chmod 400 /home/vagrant/.ssh/* || true\" >> .bashrc"                         
                     end
-                    
+
                     # If there code to share with the workstation, mount the code directory
                     if ENV['VAGRANT_LOCAL_MOUNT']
                          config.vm.synced_folder ENV['VAGRANT_LOCAL_MOUNT'], "/home/vagrant/code"
                     end
+                    
+                    # chmod the files in /home/vagrant/.ssh directory so the vagrant user can use them
+                    config.vm.provision "shell", inline: "echo \"# Modify the .ssh contents so only vagrant can access\" >> .bashrc"
+                    config.vm.provision "shell", inline: "echo \"chmod 700 /home/vagrant/.ssh/* || true\" >> .bashrc"                         
+
+               else 
+                    config.vm.provision "shell", path: "centos/hello-world.sh"
+               
                end
           end
      end
