@@ -2,7 +2,7 @@
 # vagrant-ohai (0.1.13)
 
 systems = [
-     {
+     { # workstation
           :name => "workstation",
           :type => "workstation",
           :role => "workstation",
@@ -15,7 +15,7 @@ systems = [
           :mem => "4096",
           :cpu => "4"
      },
-     {
+     { # ns0
           :name => "ns0",
           :type => "server",
           :role => "DNS",
@@ -25,7 +25,7 @@ systems = [
           :mem => "2048",
           :cpu => "2"
      },
-     {
+     { # consul0
           :name => "consul0",
           :type => "server",
           :role => "KVStore",
@@ -35,7 +35,7 @@ systems = [
           :mem => "2048",
           :cpu => "2"
      },
-     {
+     { # jenkins-master
           :name => "jenkins",
           :type => "server",
           :role => "buildSystem",
@@ -44,7 +44,17 @@ systems = [
           :eth1 => "10.1.1.12",
           :mem => "2048",
           :cpu => "2"
-     }            
+     },
+     { # ldap
+          :name => "ldap",
+          :type => "server",
+          :role => "auth",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.13",
+          :mem => "2048",
+          :cpu => "2"
+     }                  
 ]
 
 Vagrant.configure("2") do |config|
@@ -69,7 +79,7 @@ Vagrant.configure("2") do |config|
                end
 
                if ENV['VAGRANT_DATA_MOUNT']
-                    
+
                     config.vm.synced_folder ENV['VAGRANT_DATA_MOUNT'], "/data"
                end
 

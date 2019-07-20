@@ -1,4 +1,4 @@
-# Local Lab
+# Local Lab  .... a.k.a. lab.local
 This repo is intended to funciton as a local lab. While AWS "can" be cheap somtimes you just need a local lab to test things out. This is an inprogress lab build out. USE AT YOUR OWN RISK. 
 
 ## Features
