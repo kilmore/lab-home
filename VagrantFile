@@ -56,7 +56,7 @@ systems = [
           :cpu => "2"
      },
      { # jenkins-master
-          :name => "jenkins",
+          :name => "jenkins-master",
           :type => "server",
           :role => "buildSystem",
           :box  =>  "centos/7",
@@ -149,12 +149,19 @@ Vagrant.configure("2") do |config|
                     
                     # Install the basics we need for all servers
                     config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                    
+
+                    # LDAP!
+                    if opts[:name] == "ldap"
+                         config.vm.provision "file", source: "ApplicationInstalls/ldap/files/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ApplicationInstalls/ldap/ldap.sh"
+                    end
+                                        
                     # Artifactory!
                     if opts[:name] == "artifactory"
                          config.vm.provision "file", source: "ApplicationInstalls/artifactory/files/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ApplicationInstalls/artifactory/artifactory.sh"
                     end
+
                end
           end
      end

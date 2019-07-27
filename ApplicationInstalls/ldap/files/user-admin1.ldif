@@ -1,0 +1,21 @@
+dn: uid=admin1,ou=People,dc=lab,dc=local
+uid: admin1
+cn: admin1
+sn: admin1
+mail: admin1@lab.local
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+userPassword: {crypt}x
+shadowLastChange: 17449
+shadowMin: 0
+shadowMax: 99999
+shadowWarning: 7
+loginShell: /bin/bash
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/admin1
+

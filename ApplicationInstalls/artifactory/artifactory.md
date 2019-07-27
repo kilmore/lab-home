@@ -1,22 +1,24 @@
+## Summary
 
-Default Configurations:
-/etc/opt/jfrog/artifactory/default
+## Things to know
+* The default configuration for things like ARTIFACTORY_HOME and TOMCAT_HOME is located in `/etc/opt/jfrog/artifactory/default`
 
-ARTIFACTORY_HOME = /var/opt/jfrog/artifactory
 
-```
-# Create the 
-mkdir -p $ARTIFACTORY_HOME/access/etc
-sudo chmod 600 $ARTIFACTORY_HOME/access/etc/bootstrap.creds
-```
 
-curl -u "admin:Password@2" -d "@data.json" -X PUT http://localhost:8081/artifactory/api/repositories/libs-release-local
+
+## Resources:
+* [Installing Artifactory](https://www.jfrog.com/confluence/display/RTF/Installing+Artifactory)
+* [Artifactory API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API#ArtifactoryRESTAPI-Usage)
+
+
+
+
 
 https://www.jfrog.com/confluence/display/ACC/Configuring+Access
-https://www.jfrog.com/confluence/display/RTF/Installing+Artifactory
+
 
 API
-https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API#ArtifactoryRESTAPI-Usage
+
 
 ## Scratch Area
 ## --------------------------------------------------------------

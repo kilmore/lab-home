@@ -1,0 +1,4 @@
+dn: ou=groups,dc=lab,dc=local
+objectclass:organizationalunit
+ou: groups
+description: generic groups branch

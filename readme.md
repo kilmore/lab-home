@@ -13,25 +13,9 @@ This repo is intended to funciton as a local lab. While AWS "can" be cheap somti
 | ns0         | Name server for the environment. __NOT YET CONFIGURED__  |
 | consul0     | Key/Vale server for the environment. __NOT YET CONFIGURED__ |
 | jenkins-master |  Jenkins master for the environment. __Configuration in Progress__ |
+| artifactory    |  Artifact Storage                    |
+| ldap         | Authentication for the lab. Users are admin1 and developer1 in the admin and developers group|
 
-
-<!--
-Other Systems on the grand plan
-jenkins-agent0, agent1 <-- Build agents for Jenkins, because... well, it would be cool
-registry             <--  A local container registry, because why not
-artifactory/nexus    <--  Simulate have a local artifact server
-Consul1 and Consul 2 <--  These will the HA setup for consul
-Vault0 and Vault1    <--  These will be the HA Vault pair
-Kubernetes           <--  A simple Kubernetes setup 
-HA Proxy / Ngnix     <--  Setup as a load balancer. This will front end consul/vault and kubernetes
--->
-
-## Vagrant Version and Plugins
-Vagrant 2.2.5  
-
-__Plugins__
-* vagrant-env (0.0.3, global)
-* vagrant-vbguest (0.18.0, global)
 
 ## Environment Variables
 
@@ -39,4 +23,29 @@ __Plugins__
 | ------------------------- | ------------- |
 | VAGRANT_SSH_KEY_LOCATION  | Directory that contains the SSH Keys that the virtual machine will access on the local machine. |
 | VAGRANT_LOCAL_MOUNT       | Directory that the virual will mount |
-| VAGRANT_DATA_MOUNT        | x                                    |
+| VAGRANT_DATA_MOUNT        | Directory that a server in the lab can mount to store stateful data or share data with other systems. |
+
+
+
+## Configuring your host machine
+__Host File__  
+If you want to access servers in the lab from your host machine  by name, add the entries below to your host file.
+
+```
+10.1.1.10     ns0.lab.local               ns0
+10.1.1.11     consul.lab.local            consul
+10.1.1.12     valut.lab.local             vault
+10.1.1.13     jenkins-master.lab.local    jenkins-master
+10.1.1.14     ldap.lab.local              ldap
+10.1.1.15     artifactory.lab.local       artifactory.lab.local
+
+10.1.1.100    workstation.lab.local       workstation
+```
+
+
+## Vagrant Version and Plugins
+Vagrant 2.2.5  
+
+__Plugins__
+* vagrant-env (0.0.3, global)
+* vagrant-vbguest (0.18.0, global)
