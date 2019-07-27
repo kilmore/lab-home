@@ -15,6 +15,16 @@ systems = [
           :mem => "4096",
           :cpu => "4"
      },
+     { # TestServer
+          :name => "TestServer",
+          :type => "server",
+          :role => "Development",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.101",
+          :mem => "2048",
+          :cpu => "2"
+     },     
      { # ns0
           :name => "ns0",
           :type => "server",
@@ -35,13 +45,23 @@ systems = [
           :mem => "2048",
           :cpu => "2"
      },
+     { # vault0
+          :name => "vault0",
+          :type => "server",
+          :role => "Secrets",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.12",
+          :mem => "2048",
+          :cpu => "2"
+     },
      { # jenkins-master
           :name => "jenkins",
           :type => "server",
           :role => "buildSystem",
           :box  =>  "centos/7",
           :box_version => "1902.01",
-          :eth1 => "10.1.1.12",
+          :eth1 => "10.1.1.13",
           :mem => "2048",
           :cpu => "2"
      },
@@ -51,10 +71,20 @@ systems = [
           :role => "auth",
           :box  =>  "centos/7",
           :box_version => "1902.01",
-          :eth1 => "10.1.1.13",
+          :eth1 => "10.1.1.14",
           :mem => "2048",
           :cpu => "2"
-     }                  
+     } ,
+     { # artifactory
+          :name => "artifactory",
+          :type => "server",
+          :role => "auth",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.15",
+          :mem => "2048",
+          :cpu => "2"
+     }                       
 ]
 
 Vagrant.configure("2") do |config|
@@ -83,16 +113,19 @@ Vagrant.configure("2") do |config|
                     config.vm.synced_folder ENV['VAGRANT_DATA_MOUNT'], "/data"
                end
 
-               # Configure System
+               # Configure Systems
+
                if opts[:type] == "workstation"
+                    # Configure our workstation. This has tools and "stuff" to make management easy. 
+                    # Why install on your host if you don't have to!
                     config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
                     config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/id_rsa.pub" 
 
-                    config.vm.provision "shell", path: "ubuntu/dockerInstall.sh"
-                    config.vm.provision "shell", path: "ubuntu/basics.sh"
-                    config.vm.provision "shell", path: "ubuntu/hashistackInstall.sh"
-                    config.vm.provision "shell", path: "ubuntu/awsCLI.sh"
-                    config.vm.provision "shell", path: "ubuntu/install-ansible.sh"
+                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/dockerInstall.sh"
+                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/basics.sh"
+                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/hashistackInstall.sh"
+                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/awsCLI.sh"
+                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/install-ansible.sh"
                     # TODO: Install GitClient
 
                     # If there are local SSH Keys, mount the directory to /home/vagrant/.ssh
@@ -109,7 +142,19 @@ Vagrant.configure("2") do |config|
                     config.vm.provision "shell", inline: "echo \"# Modify the .ssh contents so only vagrant can access\" >> .bashrc"
                     config.vm.provision "shell", inline: "echo \"chmod 700 /home/vagrant/.ssh/* || true\" >> .bashrc"                         
                else 
-                    config.vm.provision "shell", path: "centos/hello-world.sh"
+                    #  Configure Servers!!!!
+                    # All servers here are centos based.  
+                    # Yeah, Yeah.. I could do a switch case and use ansible to configure the servers
+                    # but... hey... this is a WORK IN PROGRESS
+                    
+                    # Install the basics we need for all servers
+                    config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                    
+                    # Artifactory!
+                    if opts[:name] == "artifactory"
+                         config.vm.provision "file", source: "ApplicationInstalls/artifactory/files/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ApplicationInstalls/artifactory/artifactory.sh"
+                    end
                end
           end
      end
