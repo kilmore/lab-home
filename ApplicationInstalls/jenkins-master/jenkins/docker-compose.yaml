@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+  jenkins:
+    image: jcasc:latest
+    ports:
+      - 8080:8080
+      - 433:433
+      - 50000:50000
+    volumes:
+      - /opt/jenkins/jenkins.yaml:/var/jenkins_home/jenkins.yaml
+      - /opt/jenkins/scripts/init-authorize-project.groovy:/var/jenkins_home/init.groovy.d/init-authorize-project.groovy
+    secrets:
+    # TODO: Change the adminpw file to use vault or jcasc to use ldap  
+        - ADMIN_PASSWORD  #Initial administrator user password.  
+    # TODO: Change the ssh_key used here to pull from vault
+        - GITLAB_PRIVATE_KEY  
+    environment:
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/jenkins.yaml
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/var/jenkins_home/log.properties
+secrets:
+    # TODO: Change the adminpw file to use vault or jcasc to use ldap 
+  ADMIN_PASSWORD:
+    file: /opt/jenkins/adminpw
+  GITLAB_PRIVATE_KEY:
+    # TODO: Change the ssh_key used here to pull from vault
+    file: /opt/jenkins/keys/gitlab.priv

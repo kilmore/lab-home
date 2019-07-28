@@ -1,0 +1,179 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          id: "sudo_password"
+          password: "{AQAAABAAAAAQQWCcSrFVnl1OA9iOc0lhyakjFs4XTZd+FY7wFO2qYek=}"
+          scope: SYSTEM
+          username: "root"
+      - basicSSHUserPrivateKey:
+          description: "SSH Key to access Currax Git Repos"
+          id: "currax_gitlab"
+          privateKeySource:
+            directEntry:
+              privateKey: ${CURRAX_GITLAB_PRIVATE_KEY}
+          scope: GLOBAL
+          username: "currax"
+jenkins:
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+      - "Agent/Build:admin"
+      - "Agent/Configure:admin"
+      - "Agent/Connect:admin"
+      - "Agent/Create:admin"
+      - "Agent/Delete:admin"
+      - "Agent/Disconnect:admin"
+      - "Credentials/Create:admin"
+      - "Credentials/Create:developers"
+      - "Credentials/Delete:admin"
+      - "Credentials/Delete:developers"
+      - "Credentials/ManageDomains:admin"
+      - "Credentials/ManageDomains:developers"
+      - "Credentials/Update:admin"
+      - "Credentials/Update:developers"
+      - "Credentials/View:admin"
+      - "Credentials/View:developers"
+      - "Job/Build:admin"
+      - "Job/Build:developers"
+      - "Job/Cancel:admin"
+      - "Job/Cancel:developers"
+      - "Job/Configure:admin"
+      - "Job/Configure:developers"
+      - "Job/Create:admin"
+      - "Job/Create:developers"
+      - "Job/Delete:admin"
+      - "Job/Delete:developers"
+      - "Job/Discover:admin"
+      - "Job/Discover:developers"
+      - "Job/Move:admin"
+      - "Job/Move:developers"
+      - "Job/Read:admin"
+      - "Job/Read:developers"
+      - "Job/Workspace:admin"
+      - "Job/Workspace:developers"
+      - "Lockable Resources/Reserve:admin"
+      - "Lockable Resources/Unlock:admin"
+      - "Overall/Administer:admin"
+      - "Overall/Read:admin"
+      - "Overall/Read:developers"
+      - "Run/Delete:admin"
+      - "Run/Delete:developers"
+      - "Run/Replay:admin"
+      - "Run/Replay:developers"
+      - "Run/Update:admin"
+      - "Run/Update:developers"
+      - "View/Configure:admin"
+      - "View/Configure:developers"
+      - "View/Create:admin"
+      - "View/Create:developers"
+      - "View/Delete:admin"
+      - "View/Delete:developers"
+      - "View/Read:admin"
+      - "View/Read:developers"
+  disableRememberMe: false
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 7
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: false
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    # # This is the setup for local security. 
+    # local:
+    #   allowsSignup: false
+    #   enableCaptcha: false
+    #   users:
+    #   - id: "admin"
+    #     password: "${ADMIN_PASSWORD:-EMPTY_VALUE}"
+    #   - id: "developers"
+    #     password: "password"
+    # This is the LDAP setup. It requires two groups: admin and developers
+    ldap:
+      configurations:
+      - inhibitInferRootDN: false
+        rootDN: "dc=lab,dc=local"
+        # TO DO: DNS lookup is failing when auth.lab.local is in the host file. Having to use the IP for now.
+        server: "ldap://10.1.1.14"
+      disableMailAddressResolver: false
+      disableRolePrefixing: true
+      groupIdStrategy: "caseInsensitive"
+      userIdStrategy: "caseInsensitive" 
+        
+  slaveAgentPort: 50000
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  downloadSettings:
+    useBrowser: false
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: true
+  sSHD:
+    port: -1
+unclassified:
+  location:
+    adminAddress: "address not configured yet <nobody@nowhere>"
+  mailer:
+    adminAddress: "address not configured yet <nobody@nowhere>"
+    charset: "UTF-8"
+    useSsl: false
+  pollSCM:
+    pollingThreadCount: 10
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+jobs:
+  - script: >
+      freeStyleJob('Seed') {
+        configure {
+          it / 'properties' / 'org.jenkinsci.plugins.authorizeproject.AuthorizeProjectProperty' ('plugin':'authorize-project@1.3.0') {
+            'strategy' ('class':'org.jenkinsci.plugins.authorizeproject.strategy.SpecificUsersAuthorizationStrategy'){
+              'userid'('admin')
+              'dontRestrictJobConfiguration'('false')
+            }
+          }
+        }
+
+        scm {
+          git {
+            remote{
+              url('git@gitlab.com:currax_experiments/jenkins_jobs.git')
+              credentials('currax_gitlab')
+            }
+            extensions {
+              wipeOutWorkspace()
+            }
+          }
+        }
+        triggers {
+           scm('*/5 * * * *')
+        }
+        steps{
+            dsl(['containers.groovy'])
+        }
+      }
+      
+  - script: >
+      queue('Seed')      

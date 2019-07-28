@@ -1,10 +1,12 @@
 #!/bin/bash
 
-sudo yum remove docker \
-                  docker-client \
-                  docker-client-latest \
-                  docker-common \
-                  docker-latest \
-                  docker-latest-logrotate \
-                  docker-logrotate \
-                  docker-engine
+# Jenkins is run via container
+echo "==== Jenkins INSTALL STARTING =============================================================================="
+
+sudo su 
+mv /tmp/jenkins/ /opt/jenkins/
+cd /opt/jenkins 
+docker build -t jcasc:latest -f /opt/jenkins/Dockerfile .
+docker-compose -f /opt/jenkins/docker-compose.yaml up -d 
+
+echo "==== Jenkins INSTALL COMPLETE =============================================================================="

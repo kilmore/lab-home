@@ -143,25 +143,30 @@ Vagrant.configure("2") do |config|
                     config.vm.provision "shell", inline: "echo \"chmod 700 /home/vagrant/.ssh/* || true\" >> .bashrc"                         
                else 
                     #  Configure Servers!!!!
-                    # All servers here are centos based.  
                     # Yeah, Yeah.. I could do a switch case and use ansible to configure the servers
-                    # but... hey... this is a WORK IN PROGRESS
+                    # but... hey... this is a WORK IN PROGRESS and in the immortal words of Ron Jeremy... quick and dirty first
                     
-                    # Install the basics we need for all servers
-                    config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-
                     # LDAP!
                     if opts[:name] == "ldap"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
                          config.vm.provision "file", source: "ApplicationInstalls/ldap/files/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ApplicationInstalls/ldap/ldap.sh"
                     end
                                         
                     # Artifactory!
                     if opts[:name] == "artifactory"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
                          config.vm.provision "file", source: "ApplicationInstalls/artifactory/files/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ApplicationInstalls/artifactory/artifactory.sh"
                     end
 
+                    # Jenkins Master!
+                    if opts[:name] == "jenkins-master"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                         config.vm.provision "file", source: "ApplicationInstalls/jenkins-master/jenkins/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
+                         config.vm.provision "shell", path: "ApplicationInstalls/jenkins-master/jenkins-master.sh"
+                    end                    
                end
           end
      end
