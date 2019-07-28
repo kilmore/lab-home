@@ -22,6 +22,3 @@ vault write auth/ldap/config \
 
  vault write auth/ldap/groups/admin policies=admin-policy 
 
-#         
-#     
-#     groupfilter="(&(objectClass=groupofnames)(member:1.2.840.113556.1.4.1941:={{.UserDN}}))" \    
