@@ -35,18 +35,18 @@ systems = [
           :mem => "2048",
           :cpu => "2"
      },
-     { # consul0
-          :name => "consul0",
+     { # consul
+          :name => "consul",
           :type => "server",
-          :role => "KVStore",
+          :role => "SecretsStore",
           :box  =>  "centos/7",
           :box_version => "1902.01",
           :eth1 => "10.1.1.11",
           :mem => "2048",
           :cpu => "2"
      },
-     { # vault0
-          :name => "vault0",
+     { # vault
+          :name => "vault",
           :type => "server",
           :role => "Secrets",
           :box  =>  "centos/7",
@@ -91,7 +91,7 @@ Vagrant.configure("2") do |config|
      systems.each do |opts|
           config.vm.define opts[:name] do |config|
                
-               # Create System
+               # Create Servers
                config.vm.box = opts[:box]
                config.vm.box_version = opts[:box_version]
                config.vm.hostname = opts[:name]
@@ -113,8 +113,7 @@ Vagrant.configure("2") do |config|
                     config.vm.synced_folder ENV['VAGRANT_DATA_MOUNT'], "/data"
                end
 
-               # Configure Systems
-
+               # Configure Servers
                if opts[:type] == "workstation"
                     # Configure our workstation. This has tools and "stuff" to make management easy. 
                     # Why install on your host if you don't have to!
@@ -123,9 +122,9 @@ Vagrant.configure("2") do |config|
 
                     config.vm.provision "shell", path: "ServerConfigurations/ubuntu/dockerInstall.sh"
                     config.vm.provision "shell", path: "ServerConfigurations/ubuntu/basics.sh"
-                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/hashistackInstall.sh"
-                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/awsCLI.sh"
-                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/install-ansible.sh"
+                    config.vm.provision "shell", path: "ApplicationInstalls/workstation/hashistackInstall.sh"
+                    config.vm.provision "shell", path: "ApplicationInstalls/workstation/awsCLI.sh"
+                    config.vm.provision "shell", path: "ApplicationInstalls/workstation/install-ansible.sh"
                     # TODO: Install GitClient
 
                     # If there are local SSH Keys, mount the directory to /home/vagrant/.ssh
@@ -166,7 +165,15 @@ Vagrant.configure("2") do |config|
                          config.vm.provision "file", source: "ApplicationInstalls/jenkins-master/jenkins/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
                          config.vm.provision "shell", path: "ApplicationInstalls/jenkins-master/jenkins-master.sh"
-                    end                    
+                    end      
+                    
+                    # Vault!
+                    if opts[:name] == "vault"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
+                         config.vm.provision "file", source: "ApplicationInstalls/vault/vault/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ApplicationInstalls/vault/vault.sh"
+                    end 
                end
           end
      end

@@ -1,0 +1,22 @@
+version: '3.3'
+
+services:
+  vault:
+    image: vault:latest
+    ports:
+      - 8200:8200
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=mytoken
+
+#    volumes:
+#      - ./jenkins.yaml:/var/jenkins_home/jenkins.yaml
+#    secrets:
+#        - ADMIN_PASSWORD  #Initial administrator user password.  
+
+# secrets:
+#   ADMIN_PASSWORD:
+#     file: ./adminpw
+#   CURRAX_GITLAB_PRIVATE_KEY:
+#     file: keys/gitlab.priv
