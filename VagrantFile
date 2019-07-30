@@ -6,9 +6,6 @@ systems = [
           :name => "workstation",
           :type => "workstation",
           :role => "workstation",
-          # TODO: Update to Ubuntu 18.04
-          # :box => "ubuntu/bionic64",
-          # :box_version => "20190621.0.0",
           :box  =>  "ubuntu/xenial64",
           :box_version => "20180831.0.0",
           :eth1 => "10.1.1.100",
@@ -84,7 +81,49 @@ systems = [
           :eth1 => "10.1.1.15",
           :mem => "2048",
           :cpu => "2"
-     }                       
+     },
+     { # kubernetes-head
+          :name => "kubernetes-head",
+          :type => "server",
+          :role => "kubernetes",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          # If you change this IP you need to update the 
+          # applicationInstalls/kubernetes/config/serverIP file to match
+          :eth1 => "10.1.1.16",
+          :mem => "2048",
+          :cpu => "2"
+     },
+     { # kubernetes-node-1
+          :name => "kubernetes-node-1",
+          :type => "server",
+          :role => "kubernetes",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.17",
+          :mem => "4096",
+          :cpu => "4"
+     },       
+     { # kubernetes-node-2
+          :name => "kubernetes-node-2",
+          :type => "server",
+          :role => "kubernetes",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.18",
+          :mem => "4096",
+          :cpu => "4"
+     },
+     { # kubernetes-node-3
+          :name => "kubernetes-node-3",
+          :type => "server",
+          :role => "kubernetes",
+          :box  =>  "centos/7",
+          :box_version => "1902.01",
+          :eth1 => "10.1.1.19",
+          :mem => "4096",
+          :cpu => "4"
+     }                                                            
 ]
 
 Vagrant.configure("2") do |config|
@@ -99,9 +138,9 @@ Vagrant.configure("2") do |config|
 
                config.ssh.insert_key = false
                config.ssh.private_key_path = ['~/.vagrant.d/insecure_private_key', 'sshKeys/vagrantKey']
+               config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
                config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/authorized_keys" 
-
-
+               
                config.vm.provider "virtualbox" do |v|
                     v.name = opts[:name]
                     v.customize ["modifyvm", :id, "--memory", opts[:mem]]
@@ -109,7 +148,6 @@ Vagrant.configure("2") do |config|
                end
 
                if ENV['VAGRANT_DATA_MOUNT']
-
                     config.vm.synced_folder ENV['VAGRANT_DATA_MOUNT'], "/data"
                end
 
@@ -119,7 +157,6 @@ Vagrant.configure("2") do |config|
                     # Why install on your host if you don't have to!
                     config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
                     config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/id_rsa.pub" 
-
                     config.vm.provision "shell", path: "ServerConfigurations/ubuntu/dockerInstall.sh"
                     config.vm.provision "shell", path: "ServerConfigurations/ubuntu/basics.sh"
                     config.vm.provision "shell", path: "ApplicationInstalls/workstation/hashistackInstall.sh"
@@ -174,6 +211,19 @@ Vagrant.configure("2") do |config|
                          config.vm.provision "file", source: "ApplicationInstalls/vault/vault/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ApplicationInstalls/vault/vault.sh"
                     end 
+
+                    if opts[:role] == "kubernetes"
+                         config.vm.provision "file", source: "ApplicationInstalls/kubernetes/configs/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
+                         config.vm.provision "shell", path: "ApplicationInstalls/kubernetes/install-kubeComponents.sh"
+
+                         if opts[:name] == "kubernetes-head"
+                              config.vm.provision "shell", path: "ApplicationInstalls/kubernetes/configure-head.sh"
+                         else 
+                              config.vm.provision "shell", path: "ApplicationInstalls/kubernetes/configure-node.sh"
+                         end 
+                    end
                end
           end
      end

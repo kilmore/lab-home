@@ -1,6 +1,5 @@
 # Install Docker
 
-echo "==== DOCKER INSTALL Starting =============================================================================="
 sudo yum remove docker \
                   docker-client \
                   docker-client-latest \
@@ -28,4 +27,4 @@ sudo yum-config-manager \
  sudo chmod +x /usr/local/bin/docker-compose
  sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
- echo "==== DOCKER INSTALL COMPLETE =============================================================================="
+ systemctl enable docker && systemctl start docker
