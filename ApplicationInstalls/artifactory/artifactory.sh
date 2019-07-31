@@ -48,9 +48,9 @@ do
 done
 
 # Install Artifactory License Key
-artifactoryLicense=$(cat /tmp/files/artifactory.lic)
+artifactoryLicense=$(cat /tmp/configs/artifactory.lic)
 echo "{\"licenseKey\":\"$artifactoryLicense\"}" > data.json
 curl -u "admin:password" -d "@data.json" -H "Content-Type: application/json" -X POST http://localhost:8081/artifactory/api/system/licenses
 
 # Create a repo
-curl -u "admin:password" -d "@/tmp/files/local-release.json" -X PUT http://localhost:8081/artifactory/api/repositories/libs-release-local
+curl -u "admin:password" -d "@/tmp/configs/local-release.json" -X PUT http://localhost:8081/artifactory/api/repositories/libs-release-local

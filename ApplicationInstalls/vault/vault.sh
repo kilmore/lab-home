@@ -2,7 +2,7 @@
 sudo yum install -y unzip
 
 sudo su 
-mv /tmp/vault/ /opt/vault/
+mv /tmp/configs/ /opt/vault/
 cd /opt/vault 
 docker-compose -f /opt/vault/docker-compose.yaml up -d 
 

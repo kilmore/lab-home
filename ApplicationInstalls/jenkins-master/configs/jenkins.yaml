@@ -104,7 +104,7 @@ jenkins:
       - inhibitInferRootDN: false
         rootDN: "dc=lab,dc=local"
         # TO DO: DNS lookup is failing when auth.lab.local is in the host file. Having to use the IP for now.
-        server: "ldap://10.1.1.14"
+        server: "ldap://ldap.lab.local"
       disableMailAddressResolver: false
       disableRolePrefixing: true
       groupIdStrategy: "caseInsensitive"

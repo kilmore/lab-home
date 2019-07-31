@@ -22,8 +22,8 @@ systems = [
           :mem => "2048",
           :cpu => "2"
      },     
-     { # ns0
-          :name => "ns0",
+     { # ns
+          :name => "ns",
           :type => "server",
           :role => "DNS",
           :box  =>  "centos/7",
@@ -182,24 +182,37 @@ Vagrant.configure("2") do |config|
                     # Yeah, Yeah.. I could do a switch case and use ansible to configure the servers
                     # but... hey... this is a WORK IN PROGRESS and in the immortal words of Ron Jeremy... quick and dirty first
                     
+                    config.vm.provision "file", source: "ServerConfigurations/centos/configs/", destination: "/tmp/"
+
+                    # BIND!
+                    if opts[:name] == "ns"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                         config.vm.provision "file",  source: "ApplicationInstalls/bind/configs/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ApplicationInstalls/bind/bind.sh"
+                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
+                    end
+
                     # LDAP!
                     if opts[:name] == "ldap"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/ldap/files/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
+                         config.vm.provision "file",  source: "ApplicationInstalls/ldap/configs/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ApplicationInstalls/ldap/ldap.sh"
                     end
                                         
                     # Artifactory!
                     if opts[:name] == "artifactory"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/artifactory/files/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
+                         config.vm.provision "file", source: "ApplicationInstalls/artifactory/configs/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ApplicationInstalls/artifactory/artifactory.sh"
                     end
 
                     # Jenkins Master!
                     if opts[:name] == "jenkins-master"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/jenkins-master/jenkins/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
+                         config.vm.provision "file", source: "ApplicationInstalls/jenkins-master/configs/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
                          config.vm.provision "shell", path: "ApplicationInstalls/jenkins-master/jenkins-master.sh"
                     end      
@@ -207,14 +220,16 @@ Vagrant.configure("2") do |config|
                     # Vault!
                     if opts[:name] == "vault"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/vault/vault/", destination: "/tmp/"
+                         config.vm.provision "file", source: "ApplicationInstalls/vault/configs/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ApplicationInstalls/vault/vault.sh"
                     end 
 
                     if opts[:role] == "kubernetes"
                          config.vm.provision "file", source: "ApplicationInstalls/kubernetes/configs/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
                          config.vm.provision "shell", path: "ApplicationInstalls/kubernetes/install-kubeComponents.sh"
 

@@ -16,12 +16,12 @@ encryptedLDAP_Password=$(slappasswd -h {SSHA} -s $ldapPassword)
 if [ -d "/data/ldap" ] ; then 
 echo $encryptedLDAP_Password > /data/ldap/encryptedLDAP_Password
 else 
-echo $encryptedLDAP_Password > /tmp/files/encryptedLDAP_Password
+echo $encryptedLDAP_Password > /tmp/configs/encryptedLDAP_Password
 fi
 
 # create the base database
-ldapmodify -Y EXTERNAL  -H ldapi:/// -f /tmp/files/db.ldif
-ldapmodify -Y EXTERNAL  -H ldapi:/// -f /tmp/files/monitor.ldif
+ldapmodify -Y EXTERNAL  -H ldapi:/// -f /tmp/configs/db.ldif
+ldapmodify -Y EXTERNAL  -H ldapi:/// -f /tmp/configs/monitor.ldif
 
 # Load from Templates
 sudo cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
@@ -30,13 +30,13 @@ ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif
 ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif 
 ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif
 
-ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/files/base.ldif
-ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/files/ou-groups.ldif
-ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/files/group-admin.ldif
-ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/files/group-developers.ldif
+ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/configs/base.ldif
+ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/configs/ou-groups.ldif
+ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/configs/group-admin.ldif
+ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/configs/group-developers.ldif
 
-ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/files/user-admin1.ldif
+ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/configs/user-admin1.ldif
 ldappasswd -s password123 -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -x "uid=admin1,ou=People,dc=lab,dc=local"
 
-ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/files/user-developer1.ldif
+ldapadd -x -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -f /tmp/configs/user-developer1.ldif
 ldappasswd -s password123 -w "$ldapPassword" -D "cn=ldapadm,dc=lab,dc=local" -x "uid=developer1,ou=People,dc=lab,dc=local"
