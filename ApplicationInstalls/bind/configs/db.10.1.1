@@ -1,0 +1,21 @@
+$TTL    604800
+@       IN      SOA     lab.local. admin.lab.local. (
+                              3         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+; name servers
+      IN      NS      ns1.lab.local.
+
+; PTR Records
+10   IN      PTR     ns1.lab.local.                 ; 10.1.1.10
+11   IN      PTR     consul.lab.local.              ; 10.1.1.11
+12   IN      PTR     vault.lab.local.               ; 10.1.1.12
+13   IN      PTR     jenkins-master.lab.local.      ; 10.1.1.13
+14   IN      PTR     ldap.lab.local.                ; 10.1.1.14
+15   IN      PTR     artifactory.lab.local.         ; 10.1.1.15
+16   IN      PTR     kubernetes-head.lab.local.     ; 10.1.1.16 
+17   IN      PTR     kubernetes-node-1.lab.local.   ; 10.1.1.17
+18   IN      PTR     kubernetes-node-2.lab.local.   ; 10.1.1.18
+19   IN      PTR     kubernetes-node-3.lab.local.   ; 10.1.1.19
