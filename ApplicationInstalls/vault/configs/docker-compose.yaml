@@ -20,3 +20,4 @@ services:
 #     file: ./adminpw
 #   CURRAX_GITLAB_PRIVATE_KEY:
 #     file: keys/gitlab.priv
+ 

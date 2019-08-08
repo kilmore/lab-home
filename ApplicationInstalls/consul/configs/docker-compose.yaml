@@ -1,0 +1,17 @@
+version: '3.3'
+
+services:
+  consul:
+    container_name: consul
+    image: consul:latest
+    ports:
+        - "8500:8500"
+        - "8300:8300"
+    # Place holders for when we run not in dev mode
+    # volumes:
+    #     - ./config:/config
+    #     - ./_data/consul:/data
+#    command: agent -server -data-dir=/data -bind 0.0.0.0 -client 0.0.0.0 -bootstrap-expect=1 -dev
+    command: agent -bind 0.0.0.0 -client 0.0.0.0  -dev
+
+

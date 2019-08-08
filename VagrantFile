@@ -226,6 +226,15 @@ Vagrant.configure("2") do |config|
                          config.vm.provision "shell", path: "ApplicationInstalls/vault/vault.sh"
                     end 
 
+                    # Consul!
+                    if opts[:name] == "consul"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
+                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
+                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
+                         config.vm.provision "file", source: "ApplicationInstalls/consul/configs/", destination: "/tmp/"
+                         config.vm.provision "shell", path: "ApplicationInstalls/consul/consul.sh"
+                    end 
+
                     if opts[:role] == "kubernetes"
                          config.vm.provision "file", source: "ApplicationInstalls/kubernetes/configs/", destination: "/tmp/"
                          config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
