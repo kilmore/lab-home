@@ -157,8 +157,9 @@ Vagrant.configure("2") do |config|
                     # Why install on your host if you don't have to!
                     config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
                     config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/id_rsa.pub" 
-                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/dockerInstall.sh"
                     config.vm.provision "shell", path: "ServerConfigurations/ubuntu/basics.sh"
+                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/dockerInstall.sh"
+
                     config.vm.provision "shell", path: "ApplicationInstalls/workstation/hashistackInstall.sh"
                     config.vm.provision "shell", path: "ApplicationInstalls/workstation/awsCLI.sh"
                     config.vm.provision "shell", path: "ApplicationInstalls/workstation/install-ansible.sh"
