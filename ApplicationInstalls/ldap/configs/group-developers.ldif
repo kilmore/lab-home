@@ -1,8 +1,0 @@
-# create the developers entry
-dn: cn=developers,ou=groups,dc=lab,dc=local
-objectclass: groupOfNames
-cn: developers
-description: Developers
-# add the group members all of which are 
-# assumed to exist under people
-member: uid=developer1,ou=People,dc=lab,dc=local

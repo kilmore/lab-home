@@ -2,128 +2,24 @@
 # vagrant-ohai (0.1.13)
 
 systems = [
-     { # workstation
-          :name => "workstation",
-          :type => "workstation",
-          :role => "workstation",
-          :box  =>  "ubuntu/xenial64",
-          :box_version => "20180831.0.0",
-          :eth1 => "10.1.1.100",
-          :mem => "4096",
-          :cpu => "4"
-     },
      { # TestServer
           :name => "TestServer",
-          :type => "server",
-          :role => "Development",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
+          :role => "Test",
+          :box  =>  "generic/centos8",
+          :os   =>  "centos",
           :eth1 => "10.1.1.101",
           :mem => "2048",
           :cpu => "2"
-     },     
-     { # ns
-          :name => "ns",
-          :type => "server",
-          :role => "DNS",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.10",
-          :mem => "2048",
-          :cpu => "2"
      },
-     { # consul
-          :name => "consul",
-          :type => "server",
-          :role => "SecretsStore",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.11",
-          :mem => "2048",
-          :cpu => "2"
-     },
-     { # vault
-          :name => "vault",
-          :type => "server",
-          :role => "Secrets",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.12",
-          :mem => "2048",
-          :cpu => "2"
-     },
-     { # jenkins-master
-          :name => "jenkins-master",
-          :type => "server",
-          :role => "buildSystem",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.13",
-          :mem => "2048",
-          :cpu => "2"
-     },
-     { # ldap
-          :name => "ldap",
-          :type => "server",
-          :role => "auth",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.14",
-          :mem => "2048",
-          :cpu => "2"
-     } ,
-     { # artifactory
-          :name => "artifactory",
-          :type => "server",
-          :role => "auth",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.15",
-          :mem => "2048",
-          :cpu => "2"
-     },
-     { # kubernetes-head
-          :name => "kubernetes-head",
-          :type => "server",
-          :role => "kubernetes",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          # If you change this IP you need to update the 
-          # applicationInstalls/kubernetes/config/serverIP file to match
-          :eth1 => "10.1.1.16",
-          :mem => "2048",
-          :cpu => "2"
-     },
-     { # kubernetes-node-1
-          :name => "kubernetes-node-1",
-          :type => "server",
-          :role => "kubernetes",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.17",
-          :mem => "4096",
-          :cpu => "4"
-     },       
-     { # kubernetes-node-2
-          :name => "kubernetes-node-2",
-          :type => "server",
-          :role => "kubernetes",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.18",
-          :mem => "4096",
-          :cpu => "4"
-     },
-     { # kubernetes-node-3
-          :name => "kubernetes-node-3",
-          :type => "server",
-          :role => "kubernetes",
-          :box  =>  "centos/7",
-          :box_version => "1902.01",
-          :eth1 => "10.1.1.19",
-          :mem => "4096",
-          :cpu => "4"
-     }                                                            
+     { # Workstation
+     :name => "workstation",
+     :role => "workstation",
+     :box  =>  "generic/centos8",
+     :os   =>  "centos",
+     :eth1 => "10.1.1.10",
+     :mem => "2048",
+     :cpu => "2"
+    }                                
 ]
 
 Vagrant.configure("2") do |config|
@@ -136,120 +32,59 @@ Vagrant.configure("2") do |config|
                config.vm.hostname = opts[:name]
                config.vm.network "private_network", ip: opts[:eth1]
 
-               config.ssh.insert_key = false
-               config.ssh.private_key_path = ['~/.vagrant.d/insecure_private_key', 'sshKeys/vagrantKey']
-               config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
-               config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/authorized_keys" 
-               
                config.vm.provider "virtualbox" do |v|
                     v.name = opts[:name]
                     v.customize ["modifyvm", :id, "--memory", opts[:mem]]
                     v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
                end
 
-               if ENV['VAGRANT_DATA_MOUNT']
-                    config.vm.synced_folder ENV['VAGRANT_DATA_MOUNT'], "/data"
+               # ENABLE LOCAL SSH
+               # --------------------------
+               # To make is easy to ssh to the vagrant created server we copy in the 
+               # local id_rsa.pub. This makes it easy to run ansible and other SSH
+               # based tools against the servers. 
+               if ENV['VAGRANT_ENABLE_LOCAL_SSH']
+                    config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/vagrantKey.pub" 
+                    config.vm.provision "shell", inline: "cat /home/vagrant/.ssh/vagrantKey.pub >> /home/vagrant/.ssh/authorized_keys"
+               end 
+
+               # MOUNT DATA TO LOCAL DRIVE
+               # --------------------------
+               # Keeping data you want to persist between destroy and creates is sometimes necessary
+               # Here we mount /data to the path specified in the environment variable. 
+               if ENV['VAGRANT_DATA_PATH']
+                    config.vm.synced_folder ENV['VAGRANT_DATA_PATH'], "/data"
                end
 
-               # Configure Servers
-               if opts[:type] == "workstation"
-                    # Configure our workstation. This has tools and "stuff" to make management easy. 
-                    # Why install on your host if you don't have to!
-                    config.vm.provision "file", source: "sshKeys/vagrantKey", destination: "~/.ssh/id_rsa" 
-                    config.vm.provision "file", source: "sshKeys/vagrantKey.pub", destination: "~/.ssh/id_rsa.pub" 
-                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/basics.sh"
-                    config.vm.provision "shell", path: "ServerConfigurations/ubuntu/dockerInstall.sh"
+               # CONFIGURE A WORKSTATION
+               # --------------------------
+               # Not all of us are lucky enought to work on a Mac or Linux workstation. 
+               # Here if the "role" defined is workstation we do some additional "stuff"
+               # Additional - Stuff:
+               # -- Set the ssh keys:      We should be able to ssh to any server created in this lab from the workstation
+               # -- Mount Code Directory:  Its hard to do anything with out code. You "could" git pull it down all the time, but why not mount the local directory
+               #                           this assumes the [LOCAL_CODE_DIRECTORY] environment variable is set. 
+               # -- Install Ansible:       It is the one true configuration and code told, don't look at me that way, what are you going to use, Chef?
+               # -- Install Docker:        One of these day's I'll get around to using crio/containerd
+               # -- Install Terraform:     Maybed, just maybe you'll need to build some AWS or VMWare Infrastructure
+               # -- Install Terragrunt:    Terraform is always a little better with Terragrunt
 
-                    config.vm.provision "shell", path: "ApplicationInstalls/workstation/hashistackInstall.sh"
-                    config.vm.provision "shell", path: "ApplicationInstalls/workstation/awsCLI.sh"
-                    config.vm.provision "shell", path: "ApplicationInstalls/workstation/install-ansible.sh"
-                    # TODO: Install GitClient
+               if opts[:role] == "workstation"
+                    # Copy in your default private key. 
+                    config.vm.provision "file", source: "~/.ssh/id_rsa", destination: "/home/vagrant/.ssh/id_rsa" 
 
-                    # If there are local SSH Keys, mount the directory to /home/vagrant/.ssh
-                    if ENV['VAGRANT_SSH_KEY_LOCATION']
-                         config.vm.provision "file", source: ENV['VAGRANT_SSH_KEY_LOCATION'], destination: "/home/vagrant/.ssh"
+                    # Copy up and run the configuraiton shell scripts. 
+                    # Here the path to the scripts is defined as an attribute of the esrver object.
+                    # Maybe in the future I'll make it dymanic, but probably not, I'm lazy. 
+                    config.vm.provision "shell", path: "WorkstationConfigurations/#{opts[:os]}/basics.sh"
+                    config.vm.provision "shell", path: "WorkstationConfigurations/#{opts[:os]}/docker.sh"
+                    config.vm.provision "shell", path: "WorkstationConfigurations/#{opts[:os]}/hashi_tools.sh"
+
+                    # Mount your "code" directory
+                    if ENV['VAGRANT_CODE_PATH']
+                         config.vm.synced_folder ENV['VAGRANT_CODE_PATH'], "/home/vagrant/code"
                     end
-
-                    # If there code to share with the workstation, mount the code directory
-                    if ENV['VAGRANT_LOCAL_MOUNT']
-                         config.vm.synced_folder ENV['VAGRANT_LOCAL_MOUNT'], "/home/vagrant/code"
-                    end
-                    
-                    # chmod the files in /home/vagrant/.ssh directory so the vagrant user can use them
-                    config.vm.provision "shell", inline: "echo \"# Modify the .ssh contents so only vagrant can access\" >> .bashrc"
-                    config.vm.provision "shell", inline: "echo \"chmod 700 /home/vagrant/.ssh/* || true\" >> .bashrc"                         
-               else 
-                    #  Configure Servers!!!!
-                    # Yeah, Yeah.. I could do a switch case and use ansible to configure the servers
-                    # but... hey... this is a WORK IN PROGRESS and in the immortal words of Ron Jeremy... quick and dirty first
-                    
-                    config.vm.provision "file", source: "ServerConfigurations/centos/configs/", destination: "/tmp/"
-
-                    # BIND!
-                    if opts[:name] == "ns"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "file",  source: "ApplicationInstalls/bind/configs/", destination: "/tmp/"
-                         config.vm.provision "shell", path: "ApplicationInstalls/bind/bind.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
-                    end
-
-                    # LDAP!
-                    if opts[:name] == "ldap"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
-                         config.vm.provision "file",  source: "ApplicationInstalls/ldap/configs/", destination: "/tmp/"
-                         config.vm.provision "shell", path: "ApplicationInstalls/ldap/ldap.sh"
-                    end
-                                        
-                    # Artifactory!
-                    if opts[:name] == "artifactory"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/artifactory/configs/", destination: "/tmp/"
-                         config.vm.provision "shell", path: "ApplicationInstalls/artifactory/artifactory.sh"
-                    end
-
-                    # Jenkins Master!
-                    if opts[:name] == "jenkins-master"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/jenkins-master/configs/", destination: "/tmp/"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
-                         config.vm.provision "shell", path: "ApplicationInstalls/jenkins-master/jenkins-master.sh"
-                    end      
-                    
-                    # Vault!
-                    if opts[:name] == "vault"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/vault/configs/", destination: "/tmp/"
-                         config.vm.provision "shell", path: "ApplicationInstalls/vault/vault.sh"
-                    end 
-
-                    # Consul!
-                    if opts[:name] == "consul"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
-                         config.vm.provision "file", source: "ApplicationInstalls/consul/configs/", destination: "/tmp/"
-                         config.vm.provision "shell", path: "ApplicationInstalls/consul/consul.sh"
-                    end 
-
-                    if opts[:role] == "kubernetes"
-                         config.vm.provision "file", source: "ApplicationInstalls/kubernetes/configs/", destination: "/tmp/"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/basics.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/set-DNSServer.sh"
-                         config.vm.provision "shell", path: "ServerConfigurations/centos/docker.sh"
-                         config.vm.provision "shell", path: "ApplicationInstalls/kubernetes/install-kubeComponents.sh"
-
-                         if opts[:name] == "kubernetes-head"
-                              config.vm.provision "shell", path: "ApplicationInstalls/kubernetes/configure-head.sh"
-                         else 
-                              config.vm.provision "shell", path: "ApplicationInstalls/kubernetes/configure-node.sh"
-                         end 
-                    end
-               end
+               end 
           end
      end
 end 
