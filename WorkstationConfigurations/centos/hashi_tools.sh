@@ -11,7 +11,7 @@ sudo mv terraform /usr/local/sbin
 
 curl -o $packer.zip $packer_url
 unzip packer.zip
-sudo mv packer /usr/local/sbin
+sudo mv packer /usr/local/sbin/hpacker
 
 curl -L -o terragrunt $terragrunt_url
 chmod 755 terragrunt
