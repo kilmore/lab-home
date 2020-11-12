@@ -1,0 +1,11 @@
+# This will configure the rancher cluster rancher cluster rancher cluster nodes
+- name: Install
+  hosts: rke
+  become: true
+  vars:
+    docker_compose_version: "1.27.4"
+
+  roles:
+    - docker 
+
+

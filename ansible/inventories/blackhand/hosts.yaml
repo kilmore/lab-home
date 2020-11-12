@@ -1,0 +1,11 @@
+all:
+  hosts:
+    mail.example.com:
+  children:
+    rke:
+      hosts:
+        10.1.1.60:
+        10.1.1.61:
+        10.1.1.62:
+    
+  
