@@ -1,0 +1,7 @@
+- name: Install
+  hosts: workstations
+  become: true
+
+  roles:
+    - docker
+    - workstation 

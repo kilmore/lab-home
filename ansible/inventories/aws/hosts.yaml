@@ -1,0 +1,11 @@
+all:
+  hosts:
+    mail.example.com:
+  children:
+    rke:
+      hosts:
+        kubernetes-control0.lab.currax.io:
+    workstations:
+      hosts:
+        workstation0.lab.currax.io:
+  
