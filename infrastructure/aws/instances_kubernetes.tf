@@ -19,8 +19,9 @@ resource "aws_instance" "kubernetes_control0" {
 }
 
 resource "aws_route53_record" "kubernetes-cluster" {
-  zone_id = data.aws_route53_zone.selected.zone_id
-  name    = "kubernetes-control0.${data.aws_route53_zone.selected.name}"
+  # zone_id = data.aws_route53_zone.selected.zone_id
+  zone_id = aws_route53_zone.lab_private.zone_id
+  name    = "kubernetes-control0.lab.currax.io"
   type    = "A"
   ttl     = "300"
   records = [aws_instance.kubernetes_control0.public_ip]
@@ -29,7 +30,7 @@ resource "aws_route53_record" "kubernetes-cluster" {
 # --
 
 # resource "aws_instance" "kubernetes-node-0" {
-#   ami                    = var.kubernetes_instanceId
+#   ami                    = data.aws_ami.centos.image_id
 #   instance_type          = "t3a.large"
 #   subnet_id              = aws_subnet.lab-public-1.id
 #   vpc_security_group_ids = [aws_security_group.default_allow_all.id]
@@ -37,7 +38,7 @@ resource "aws_route53_record" "kubernetes-cluster" {
 #   private_ip             = "10.1.1.100"
 
 #   tags = {
-#     Name = "kubernetes-node-0"
+#     Name = "kubernetes-control-0"
 #     Kubernetes-Node-Type = "worker"
 #   }
 # }

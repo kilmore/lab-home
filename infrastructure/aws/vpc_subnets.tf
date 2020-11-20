@@ -11,6 +11,15 @@ resource "aws_vpc" "vpc-lab" {
   }
 }
 
+resource "aws_route53_zone" "private-lab-currax-io" {
+  name = "lab.currax.io"
+
+  vpc {
+    vpc_id = aws_vpc.vpc-lab.id
+  }
+}
+
+
 # Subnets
 resource "aws_subnet" "lab-public-1" {
   vpc_id                  = aws_vpc.vpc-lab.id
