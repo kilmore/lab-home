@@ -21,8 +21,8 @@ systems = [
      :cpu => "2"     
     },
 
-     { # RancherControl0
-     :name => "RancherControl0",
+     { # management0
+     :name => "management0",
      :role => "RancherManagement",
      :box  =>  "centos/7",
      :os   =>  "centos",
@@ -30,8 +30,8 @@ systems = [
      :mem => "8192",
      :cpu => "4"
     },
-    { # Kubernetes0
-    :name => "Kubernetes0",
+    { # control0
+    :name => "control0",
     :role => "kubernetes",
     :box  =>  "centos/7",
     :os   =>  "centos",
@@ -39,30 +39,30 @@ systems = [
     :mem => "2048",
     :cpu => "2"
    },
-    { # Kubernetes0
-    :name => "Kubernetes0",
+    { # compute0
+    :name => "compute0",
     :role => "kubernetes",
     :box  =>  "centos/7",
     :os   =>  "centos",
-    :eth1 => "10.1.1.61",
+    :eth1 => "10.1.1.63",
     :mem => "4096",
     :cpu => "4"
    },
-   { # Kubernetes1
-   :name => "Kubernetes1",
+   { # compute1
+   :name => "compute1",
    :role => "kubernetes",
    :box  =>  "centos/7",
    :os   =>  "centos",
-   :eth1 => "10.1.1.62",
+   :eth1 => "10.1.1.64",
    :mem => "4096",
    :cpu => "4"
   },
-  { # Kubernetes2
-  :name => "Kubernetes2",
+  { # compute2
+  :name => "compute2",
   :role => "kubernetes",
   :box  =>  "centos/7",
   :os   =>  "centos",
-  :eth1 => "10.1.1.63",
+  :eth1 => "10.1.1.65",
   :mem => "4096",
   :cpu => "4"
   }                                

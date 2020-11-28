@@ -1,0 +1,24 @@
+- name: Configure Base 
+  hosts: kubernetesCluster
+  become: true
+
+  roles:
+    - base 
+    - docker 
+    - rke
+
+  vars:
+    # Docker Settings 
+    docker_compose_version: "1.27.4"
+    
+    # Base Settings 
+    domain_name: lab.blackhand
+    search_domains: 
+      - lab.blackhand
+    nameservers:
+      - 10.1.1.10
+
+    # RKE Settings 
+    rke_ssh_user: vagrant 
+    cluster_cidr: 10.42.0.0/16
+

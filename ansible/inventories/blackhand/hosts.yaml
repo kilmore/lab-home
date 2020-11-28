@@ -5,10 +5,29 @@ all:
     dns:
       hosts: 
         10.1.1.10:
-    rke:
+    
+    kubernetesCluster:
       hosts:
-        kubernetes-control0.lab.currax.io:
+        management0.lab.blackhand:
+        control0.lab.blackhand:
+        compute0.lab.blackhand:
+        compute1.lab.blackhand:
+        compute2.lab.blackhand:
+
+    rkeManagement:
+      hosts:
+        management0.lab.blackhand:
+
+    rkeControlPlane:
+      hosts:
+        control0.lab.blackhand:
+      
+    rkeCompute:
+        compute0.lab.blackhand:
+        compute1.lab.blackhand:
+        compute2.lab.blackhand:
+
     workstations:
       hosts:
-        workstation0.lab.currax.io:
+        workstation0.lab.blackhand:
   

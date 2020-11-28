@@ -24,3 +24,21 @@
             value: 10.1.1.10
           - name: test
             value: 1.2.3.4
+          - name: management0
+            value: 10.1.1.50
+          - name: control0
+            value: 10.1.1.60
+          - name: control1
+            value: 10.1.1.61
+          - name: control2
+            value: 10.1.1.62
+          - name: compute0
+            value: 10.1.1.63
+          - name: compute1
+            value: 10.1.1.64
+          - name: compute2
+            value: 10.1.1.65
+          - name: compute3
+            value: 10.1.1.66
+          - name: compute4
+            value: 10.1.1.67
