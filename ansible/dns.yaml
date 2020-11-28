@@ -1,0 +1,26 @@
+- name: Install DNS
+  hosts:  dns
+  become: true
+
+  roles:
+    - bind 
+
+  vars:
+    dns_allow_recursion:
+      - any
+    
+    dns_options_forwarders:
+      - 1.1.1.1
+      - 8.8.8.8
+    
+    dns_zones:
+      - name: lab.blackhand
+        ttl: 604800
+        ns:
+          - name: ns1.lab.blackhand.
+            
+        records:
+          - name: ns1
+            value: 10.1.1.10
+          - name: test
+            value: 1.2.3.4

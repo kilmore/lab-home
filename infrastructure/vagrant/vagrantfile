@@ -7,16 +7,16 @@ systems = [
      :role => "workstation",
      :box  =>  "centos/7",
      :os   =>  "centos",
-     :eth1 => "10.1.1.10",
+     :eth1 => "10.1.1.100",
      :mem => "2048",
      :cpu => "2"
     },
     {
-     :name => "Centos8Test",
-     :role => "Testserver",
-     :box  =>  "generic/centos8",
+     :name => "dns",
+     :role => "dns",
+     :box  =>  "centos/7",
      :os   =>  "centos",
-     :eth1 => "10.1.1.100",
+     :eth1 => "10.1.1.10",
      :mem => "2048",
      :cpu => "2"     
     },
@@ -24,7 +24,7 @@ systems = [
      { # RancherControl0
      :name => "RancherControl0",
      :role => "RancherManagement",
-     :box  =>  "generic/centos8",
+     :box  =>  "centos/7",
      :os   =>  "centos",
      :eth1 => "10.1.1.50",
      :mem => "8192",
@@ -51,7 +51,7 @@ systems = [
    { # Kubernetes1
    :name => "Kubernetes1",
    :role => "kubernetes",
-   :box  =>  "generic/centos8",
+   :box  =>  "centos/7",
    :os   =>  "centos",
    :eth1 => "10.1.1.62",
    :mem => "4096",
@@ -136,14 +136,6 @@ Vagrant.configure("2") do |config|
                          config.vm.synced_folder '~/.aws/', "/home/vagrant/.aws/"
                     end 
                end
-
-               # CONFIGURE A KUBERNETES NODE
-               # -------------------------------
-               # All kubernetes nodes need docker (or another container run time)
-               # For now we'll install docker at creation time. Better to move this into an ansible playbook
-               if opts[:role] == "kubernetes"
-                    config.vm.provision "shell", path: "WorkstationConfigurations/#{opts[:os]}/docker.sh"
-               end 
           end
      end
 end 

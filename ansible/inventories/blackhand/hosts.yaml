@@ -2,6 +2,9 @@ all:
   hosts:
     mail.example.com:
   children:
+    dns:
+      hosts: 
+        10.1.1.10:
     rke:
       hosts:
         kubernetes-control0.lab.currax.io:

@@ -6,3 +6,9 @@
 
 - src: https://github.com/kilmore/ansible_role_workstation.git
   name: workstation
+
+- src: https://github.com/kilmore/ansible_role_base.git
+  name: base
+
+- src: https://github.com/kilmore/ansible_role_bind.git
+  name: bind
