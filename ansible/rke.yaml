@@ -1,24 +1,57 @@
-- name: Configure Base 
-  hosts: kubernetesCluster
+# - name: Configure Base 
+#   hosts: kubernetesCluster
+#   become: true
+
+#   roles:
+#     - base 
+#     - docker 
+#     - rke
+
+#   vars:
+#     # Docker Settings 
+#     docker_compose_version: "1.27.4"
+    
+#     # Base Settings 
+#     domain_name: lab.blackhand
+#     search_domains: 
+#       - lab.blackhand
+#     nameservers:
+#       - 10.1.1.10
+
+#     # RKE Settings 
+#     rke_ssh_user: vagrant 
+#     cluster_cidr: 10.42.0.0/16
+#     cluster_configuration_level: base
+
+- name: Bring RKE cluster via a management node 
+  hosts: rkeManagement
   become: true
 
   roles:
-    - base 
-    - docker 
-    - { role: rke, tags: rkeCommon }
+    - rke
 
   vars:
-    # Docker Settings 
-    docker_compose_version: "1.27.4"
-    
-    # Base Settings 
-    domain_name: lab.blackhand
-    search_domains: 
-      - lab.blackhand
-    nameservers:
-      - 10.1.1.10
-
-    # RKE Settings 
-    rke_ssh_user: vagrant 
+    rke_ssh_user: vagrant     
+    cluster_configuration_level: up
     cluster_cidr: 10.42.0.0/16
+    service_cluster_cidr: 10.43.0.0/16
+    ssh_key_path: /path/goes/here
+    ssh_key: ""
+    rke_binary_url: https://github.com/rancher/rke/releases/download/v1.2.3/rke_linux-amd64
+    rke_config_dir: /tmp/
+    rke_kubernetes_version: v1.17.14
+
+    cluster_nodes:
+      - address: cluster0.lab.vagrant
+        port: 5000
+        roles: 
+          - one
+          - two 
+        docker_socket: /docker/socket
+      - address: cluster1.lab.vagrant
+        port: 5000
+        roles: 
+          - three
+          - four
+        docker_socket: /docker/socket  
 

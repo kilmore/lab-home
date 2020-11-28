@@ -14,10 +14,10 @@
       - 8.8.8.8
     
     dns_zones:
-      - name: lab.blackhand
+      - name: lab.vagrant
         ttl: 604800
         ns:
-          - name: ns1.lab.blackhand.
+          - name: ns1.lab.vagrant.
             
         records:
           - name: ns1

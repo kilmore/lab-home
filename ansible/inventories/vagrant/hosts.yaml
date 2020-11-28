@@ -1,0 +1,31 @@
+all:
+  children:
+    dns:
+      hosts: 
+        10.1.1.10:
+    
+    kubernetesCluster:
+      hosts:
+        management0.lab.vagrant:
+        control0.lab.vagrant:
+        compute0.lab.vagrant:
+        compute1.lab.vagrant:
+        compute2.lab.vagrant:
+
+    rkeManagement:
+      hosts:
+        management0.lab.vagrant:
+
+    rkeControlPlane:
+      hosts:
+        control0.lab.vagrant:
+      
+    rkeCompute:
+        compute0.lab.vagrant:
+        compute1.lab.vagrant:
+        compute2.lab.vagrant:
+
+    workstations:
+      hosts:
+        workstation0.lab.vagrant:
+  
